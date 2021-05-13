@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:fragment="com.example.traveller.SettingsFragment">
+
+    <EditTextPreference
+        android:defaultValue="true"
+        android:key="edit_text_preference_1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Distance of notification trigger" />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="check_box_preference_1"
+        android:title="Font colour" />
+    <SeekBarPreference
+        android:defaultValue="11"
+        android:key="font_size"
+        android:max="20"
+        android:title="Font size"
+        app:min="5"
+        app:showSeekBarValue="true" />
+
+</PreferenceScreen>

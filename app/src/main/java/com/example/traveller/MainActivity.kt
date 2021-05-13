@@ -14,13 +14,17 @@ import com.example.traveller.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
-private lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+//        supportFragmentManager
+//            .beginTransaction()
+//            .replace(R.id.action_settings, SettingsFragment())
+//            .commit()
 
-     binding = ActivityMainBinding.inflate(layoutInflater)
-     setContentView(binding.root)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
 
@@ -30,10 +34,11 @@ private lateinit var binding: ActivityMainBinding
 
         binding.fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
+                .setAction("Action", null).show()
         }
     }
-override fun onCreateOptionsMenu(menu: Menu): Boolean {
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
@@ -43,15 +48,33 @@ override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        return when(item.itemId) {
-            R.id.action_settings -> true
+        return when (item.itemId) {
+            R.id.action_settings -> startSettingsTransaction()
             else -> super.onOptionsItemSelected(item)
         }
+//     return when(item.itemId) {
+//            supportFragmentManager
+//                .beginTransaction()
+//                .replace(R.id.action_settings, SettingsFragment())
+//                .commit() -> true
+//            else -> false
+////            R.id.action_settings -> true
+////            else -> super.onOptionsItemSelected(item)
+//        }
+    }
+
+    private fun startSettingsTransaction(): Boolean {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.root_container, SettingsFragment())
+            .commit()
+
+        return true
     }
 
     override fun onSupportNavigateUp(): Boolean {
-    val navController = findNavController(R.id.nav_host_fragment_content_main)
-    return navController.navigateUp(appBarConfiguration)
-            || super.onSupportNavigateUp()
+        val navController = findNavController(R.id.nav_host_fragment_content_main)
+        return navController.navigateUp(appBarConfiguration)
+                || super.onSupportNavigateUp()
     }
 }
