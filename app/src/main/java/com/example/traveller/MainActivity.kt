@@ -1,6 +1,13 @@
 package com.example.traveller
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.ComponentName
+import android.content.Intent
+import android.content.ServiceConnection
+import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -9,28 +16,58 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.traveller.databinding.ActivityMainBinding
+import com.example.traveller.service.BoundedService
+import com.example.traveller.service.ForegroundService
 import com.google.android.material.snackbar.Snackbar
+
+const val NOTIFICATION_CHANNEL_DEFAULT = "com.example.service.DEFAULT"
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private val settingsFragment: SettingsFragment by lazy { SettingsFragment() }
+    private val view by lazy { ActivityMainBinding.inflate(layoutInflater) }
 //    private lateinit var settingsFragment: SettingsFragment
+
+    val serviceConnection = object :
+        ServiceConnection { // podpiecie do serwisu (a konkretnie do interfejsu ServiceConnection)
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            this@MainActivity.service = (service as BoundedService.Bound).service
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+
+        }
+    }
+
+    var service: BoundedService? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         setSupportActionBar(binding.toolbar)
-
 //        settingsFragment = SettingsFragment()
-
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
+
+        registerChannel()
+
+        view.foreground.setOnClickListener {
+            startForegroundService()
+        }
+
+        view.background.setOnClickListener {
+            bindService(
+                Intent(this, BoundedService::class.java),
+                serviceConnection,
+                BIND_AUTO_CREATE // flaga ktora pojawi sie w momencie kiedy serwis nie byl wczesniej przez nas uruchomiony
+            )
+//            unbindService(serviceConnection) // metoda do odlaczania serwisu
+        }
 
         binding.fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -100,5 +137,26 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
+    }
+
+    fun startForegroundService() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(Intent(this, ForegroundService::class.java))
+        } else {
+            startService(Intent(this, ForegroundService::class.java))
+        }
+    }
+
+    fun registerChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val notificationChannel = NotificationChannel(
+                NOTIFICATION_CHANNEL_DEFAULT,
+                "General", // nazwa widoczna dla uzytkownika
+                importance
+            )
+            val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(notificationChannel)
+        }
     }
 }
