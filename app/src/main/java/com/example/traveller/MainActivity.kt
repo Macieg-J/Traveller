@@ -15,6 +15,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
+import com.example.traveller.camera.CameraActivity
 import com.example.traveller.databinding.ActivityMainBinding
 import com.example.traveller.service.BoundedService
 import com.example.traveller.service.ForegroundService
@@ -56,22 +57,23 @@ class MainActivity : AppCompatActivity() {
 
         registerChannel()
 
-        view.foreground.setOnClickListener {
-            startForegroundService()
-        }
-
-        view.background.setOnClickListener {
-            bindService(
-                Intent(this, BoundedService::class.java),
-                serviceConnection,
-                BIND_AUTO_CREATE // flaga ktora pojawi sie w momencie kiedy serwis nie byl wczesniej przez nas uruchomiony
-            )
-//            unbindService(serviceConnection) // metoda do odlaczania serwisu
-        }
+//        view.foreground.setOnClickListener {
+//            startForegroundService()
+//        }
+//
+//        view.background.setOnClickListener {
+//            bindService(
+//                Intent(this, BoundedService::class.java),
+//                serviceConnection,
+//                BIND_AUTO_CREATE // flaga ktora pojawi sie w momencie kiedy serwis nie byl wczesniej przez nas uruchomiony
+//            )
+////            unbindService(serviceConnection) // metoda do odlaczania serwisu
+//        }
 
         binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                .setAction("Action", null).show()
+            startActivity(Intent(this, CameraActivity::class.java))
         }
     }
 
