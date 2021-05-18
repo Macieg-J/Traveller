@@ -13,7 +13,8 @@ import com.example.traveller.databinding.FragmentSecondBinding
  */
 class SecondFragment : Fragment() {
 
-private var _binding: FragmentSecondBinding? = null
+    private var _binding: FragmentSecondBinding? = null
+
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
@@ -23,8 +24,8 @@ private var _binding: FragmentSecondBinding? = null
         savedInstanceState: Bundle?
     ): View? {
 
-      _binding = FragmentSecondBinding.inflate(inflater, container, false)
-      return binding.root
+        _binding = FragmentSecondBinding.inflate(inflater, container, false)
+        return binding.root
 
     }
 
@@ -35,7 +36,8 @@ private var _binding: FragmentSecondBinding? = null
             findNavController().navigate(R.id.action_SecondFragment_to_FirstFragment)
         }
     }
-override fun onDestroyView() {
+
+    override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }

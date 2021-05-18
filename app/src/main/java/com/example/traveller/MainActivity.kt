@@ -9,6 +9,7 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
+import androidx.fragment.app.*
 import com.example.traveller.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -18,10 +19,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        supportFragmentManager
-//            .beginTransaction()
-//            .replace(R.id.action_settings, SettingsFragment())
-//            .commit()
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -38,6 +35,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        super.onResume()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
@@ -50,27 +52,52 @@ class MainActivity : AppCompatActivity() {
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
             R.id.action_settings -> startSettingsTransaction()
+            android.R.id.home -> {
+//                supportFragmentManager
+//                    .beginTransaction()
+//                    .detach(SettingsFragment())
+//                    .commit()
+                supportFragmentManager.popBackStack()
+                return true
+            }
             else -> super.onOptionsItemSelected(item)
         }
-//     return when(item.itemId) {
-//            supportFragmentManager
-//                .beginTransaction()
-//                .replace(R.id.action_settings, SettingsFragment())
-//                .commit() -> true
-//            else -> false
-////            R.id.action_settings -> true
-////            else -> super.onOptionsItemSelected(item)
-//        }
     }
 
     private fun startSettingsTransaction(): Boolean {
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.root_container, SettingsFragment())
+            .addToBackStack(null)
             .commit()
-
         return true
     }
+
+    // zrobić fragment jak w Paint z ćwiczeń (z ekranu fragment_first)
+
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+//                finish()
+//                this.onBackPressed()
+//                supportFragmentManager.removeOnBackStackChangedListener(FragmentManager.OnBackStackChangedListener { })
+//                supportFragmentManager.commit {
+//                    setReorderingAllowed(true)
+//                    remove(SettingsFragment())
+//                    supportFragmentManager.popBackStack()
+                supportFragmentManager
+                    .beginTransaction()
+                    .detach(SettingsFragment())
+                return true
+                }
+//                return true
+            }
+        return false
+        }
+//        return super.onContextItemSelected(item)
+//    }
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
