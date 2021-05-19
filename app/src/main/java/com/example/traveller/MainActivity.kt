@@ -11,6 +11,7 @@ import android.os.IBinder
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
@@ -139,6 +140,13 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
+    }
+
+    fun hasPermissions(): Boolean {
+//        if (applicationContext != null ){
+//            ActivityCompat.checkSelfPermission(this, it)
+//        }
+        return false
     }
 
     fun startForegroundService() {

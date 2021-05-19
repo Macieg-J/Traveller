@@ -1,12 +1,10 @@
 package com.example.traveller.camera
 
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.provider.MediaStore.EXTRA_OUTPUT
 import android.widget.Button
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
@@ -18,8 +16,8 @@ import com.example.traveller.databinding.ActivityCameraBinding
 class CameraActivity : AppCompatActivity() {
 
     private val binding by lazy { ActivityCameraBinding.inflate(layoutInflater) }
-    private val takePhotoButton by lazy { findViewById<Button>(R.id.button) }
-    private val photoImageView by lazy { findViewById<ImageView>(R.id.imageView) }
+    private val takePhotoButton by lazy { findViewById<Button>(R.id.camera_take_picture_button) }
+    private val photoImageView by lazy { findViewById<ImageView>(R.id.camera_taken_picture_imageView) }
     private val providerIdentifier = "com.example.traveller.FileProvider"
     private val takePictureRequestCode = 1
 
@@ -56,6 +54,7 @@ class CameraActivity : AppCompatActivity() {
                 BitmapFactory.decodeFile(  // pelne zdjecie
 //                    filesDir.resolve("images/image.jpg").absolutePath
                     filesDir.resolve("image.jpg").absolutePath
+//                ).compress(Bitmap.CompressFormat.JPEG, 50, openFileOutput("x", MODE_APPEND))
                 )
             )
 

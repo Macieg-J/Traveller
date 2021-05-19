@@ -9,4 +9,6 @@
 
     <string name="first_fragment_welcome_text">Hi there! Click the "add button" to take a picture and optionally add description.</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="camera_take_a_picture_button_text">Take a picture</string>
+    <string name="camera_confirm_button_text">Save</string>
 </resources>
