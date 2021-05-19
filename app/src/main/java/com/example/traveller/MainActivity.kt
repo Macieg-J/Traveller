@@ -1,22 +1,27 @@
 package com.example.traveller
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.traveller.camera.CameraActivity
+import com.example.traveller.camera.localisation.LocalisationServicesClient
 import com.example.traveller.databinding.ActivityMainBinding
 import com.example.traveller.service.BoundedService
 import com.example.traveller.service.ForegroundService
@@ -57,6 +62,12 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         registerChannel()
+
+//        val localisationServicesClient = LocalisationServicesClient(this)
+//        localisationServicesClient.setUpLocalisationClient()
+//        Toast.makeText(this, localisationServicesClient.lastKnownLocation.latitude.toString() + ", " + localisationServicesClient.lastKnownLocation.longitude.toString() , Toast.LENGTH_LONG).show()
+
+
 
 //        view.foreground.setOnClickListener {
 //            startForegroundService()
