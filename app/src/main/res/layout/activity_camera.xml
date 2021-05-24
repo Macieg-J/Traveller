@@ -63,15 +63,15 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="24dp"
         android:ems="10"
-        android:hint="Enter your note here"
+        android:hint="@string/camera_note_editText_hint"
         android:inputType="textMultiLine"
         android:textEditPasteWindowLayout="@style/TextAppearance.AppCompat.SearchResult.Subtitle"
-        app:layout_constraintBottom_toTopOf="@+id/camera_confirm_button"
+        app:layout_constraintBottom_toTopOf="@+id/camera_save_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/camera_confirm_button"
+        android:id="@+id/camera_save_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"

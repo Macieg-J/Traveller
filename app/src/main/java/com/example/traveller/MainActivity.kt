@@ -12,20 +12,36 @@ import android.os.Bundle
 import android.os.IBinder
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.findFragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.room.CoroutinesRoom
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import com.example.traveller.adapter.EntryAdapter
 import com.example.traveller.camera.CameraActivity
-import com.example.traveller.camera.localisation.LocalisationServicesClient
+//import com.example.traveller.camera.localisation.LocalisationServicesClient
+import com.example.traveller.database.AppDatabase
+import com.example.traveller.database.Entry
 import com.example.traveller.databinding.ActivityMainBinding
 import com.example.traveller.service.BoundedService
 import com.example.traveller.service.ForegroundService
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.concurrent.Executor
 
 const val NOTIFICATION_CHANNEL_DEFAULT = "com.example.service.DEFAULT"
 
@@ -35,7 +51,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val settingsFragment: SettingsFragment by lazy { SettingsFragment() }
     private val view by lazy { ActivityMainBinding.inflate(layoutInflater) }
-//    private lateinit var settingsFragment: SettingsFragment
+    private val firstFragment: FirstFragment = FirstFragment()
+
+//        private val fragment = findViewById<View>(R.id.FirstFragment)
+    private lateinit var database: AppDatabase
 
     val serviceConnection = object :
         ServiceConnection { // podpiecie do serwisu (a konkretnie do interfejsu ServiceConnection)
@@ -56,36 +75,33 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
-//        settingsFragment = SettingsFragment()
+        database = Room.databaseBuilder(
+            this,
+            AppDatabase::class.java,
+            "local-database"
+        ).build()
+//        firstFragment = FirstFragment()
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         registerChannel()
-
-//        val localisationServicesClient = LocalisationServicesClient(this)
-//        localisationServicesClient.setUpLocalisationClient()
-//        Toast.makeText(this, localisationServicesClient.lastKnownLocation.latitude.toString() + ", " + localisationServicesClient.lastKnownLocation.longitude.toString() , Toast.LENGTH_LONG).show()
-
-
-
-//        view.foreground.setOnClickListener {
-//            startForegroundService()
-//        }
-//
-//        view.background.setOnClickListener {
-//            bindService(
-//                Intent(this, BoundedService::class.java),
-//                serviceConnection,
-//                BIND_AUTO_CREATE // flaga ktora pojawi sie w momencie kiedy serwis nie byl wczesniej przez nas uruchomiony
-//            )
-////            unbindService(serviceConnection) // metoda do odlaczania serwisu
-//        }
+        getDataFromDb()
 
         binding.fab.setOnClickListener { view ->
-//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                .setAction("Action", null).show()
             startActivity(Intent(this, CameraActivity::class.java))
+        }
+    }
+
+    private fun getDataFromDb() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val entryDao = database.entryDao()
+            val listOfEntries: List<Entry> = entryDao.getAll()
+            withContext(Dispatchers.Main) {
+                firstFragment.setAdapter(listOfEntries, baseContext)
+                supportFragmentManager.beginTransaction()
+                    .add(R.id.fragment_first_entry_list_recyclerView, firstFragment).commit()
+            }
         }
     }
 
@@ -180,4 +196,12 @@ class MainActivity : AppCompatActivity() {
             notificationManager.createNotificationChannel(notificationChannel)
         }
     }
+
+//    private fun onEditAction(model: Entry) {
+//
+//    }
+//
+//    private fun onRemoveAction(model: Entry) : Boolean {
+//        return false
+//    }
 }

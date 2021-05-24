@@ -11,4 +11,8 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="camera_take_a_picture_button_text">Take a picture</string>
     <string name="camera_confirm_button_text">Save</string>
+    <string name="item_entry_country_textView_text">Country</string>
+    <string name="item_entry_place_textView_text">Place</string>
+    <string name="item_entry_date_textView">Date</string>
+    <string name="camera_note_editText_hint">Enter your note here</string>
 </resources>

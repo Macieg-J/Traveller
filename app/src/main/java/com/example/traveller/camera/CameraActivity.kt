@@ -1,6 +1,7 @@
 package com.example.traveller.camera
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
@@ -11,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import com.example.traveller.R
 import com.example.traveller.databinding.ActivityCameraBinding
+import java.util.*
 
 
 class CameraActivity : AppCompatActivity() {
@@ -20,6 +22,7 @@ class CameraActivity : AppCompatActivity() {
     private val photoImageView by lazy { findViewById<ImageView>(R.id.camera_taken_picture_imageView) }
     private val providerIdentifier = "com.example.traveller.FileProvider"
     private val takePictureRequestCode = 1
+    private var photoStringId = UUID.randomUUID().toString()
 
     // FileProvider zapisuje w pamięci lokalnej aplikacji, MediaStore w pamięci ogólnej
 
@@ -34,12 +37,16 @@ class CameraActivity : AppCompatActivity() {
             }
             startActivityForResult(takePhotoIntent, takePictureRequestCode)
         }
+
+        binding.cameraSaveButton.setOnClickListener {
+
+        }
     }
 
     // authority to identyfikator provider'a, adres pod ktory aplikacja kamery bedzie probowala sie odwolac
     private fun generateUri(): Uri { // zwraca URI do stworzonego pliku (w ktorym bedzie zdjecie)
 //        val file = filesDir.resolve("images/image.jpg").also {
-        val file = filesDir.resolve("image.jpg").also {
+        val file = filesDir.resolve(photoStringId).also {
             it.writeText("") // tworzy "czysty" plik
         }
 
@@ -53,7 +60,7 @@ class CameraActivity : AppCompatActivity() {
             photoImageView.setImageBitmap( // zapis zdjecia
                 BitmapFactory.decodeFile(  // pelne zdjecie
 //                    filesDir.resolve("images/image.jpg").absolutePath
-                    filesDir.resolve("image.jpg").absolutePath
+                    filesDir.resolve(photoStringId).absolutePath
 //                ).compress(Bitmap.CompressFormat.JPEG, 50, openFileOutput("x", MODE_APPEND))
                 )
             )
