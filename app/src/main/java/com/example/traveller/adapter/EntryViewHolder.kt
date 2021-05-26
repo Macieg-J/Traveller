@@ -1,15 +1,31 @@
 package com.example.traveller.adapter
 
-import android.content.ContentUris
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.net.Uri
-import android.provider.MediaStore
 import androidx.recyclerview.widget.RecyclerView
 import com.example.traveller.R
 import com.example.traveller.database.Entry
 import com.example.traveller.databinding.ItemEntryBinding
+import java.io.FileNotFoundException
+
+fun getImageById(id: String, context: Context): Bitmap {
+    val filePath = context.filesDir.absolutePath + "/" + id
+    val createdBitmap: Bitmap
+//        createdBitmap.use {
+//        }
+
+    try {
+        createdBitmap = BitmapFactory.decodeFile(filePath)
+        return createdBitmap
+    } catch (execution: FileNotFoundException) {
+        return BitmapFactory.decodeResource(
+            context.resources,
+            R.drawable.ic_launcher_foreground
+        )
+    }
+//        return BitmapFactory.decodeFile(filePath)
+}
 
 class EntryViewHolder(
     private val layoutBinding: ItemEntryBinding,
@@ -20,37 +36,28 @@ class EntryViewHolder(
     private val uriEnd = ".jpg"
 
     fun bind(entry: Entry) = with(layoutBinding) {
-        itemEntryPhotoImageView.setImageBitmap(getImageById("image", context))
+        itemEntryPhotoImageView.setImageBitmap(getImageById(entry.photoId, context))
 //        setImage()
         itemEntryCountryTextView.text = entry.countryName
         itemFinancePlaceTextView.text = entry.placeName
         itemFinanceDateTextView.text = entry.date
     }
 
-    fun getImageById(id: String, context: Context): Bitmap {
-        val filePath = context.filesDir.absolutePath + "id" + uriEnd
-        return BitmapFactory.decodeFile(filePath)
-    }
-
-//    private fun setImage() {
-//        //MediaStore.getExternalVolumeNames(this)
-//        val uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-//        context.contentResolver.query(
-//            uri,
-//            arrayOf(MediaStore.Images.Media._ID),
-//            null,
-//            null,
-//            null
-//        )?.use {
-//            if (it.moveToNext()) {
-//                val id = it.getInt(it.getColumnIndex(MediaStore.Images.Media._ID))
-//                val imgUri = ContentUris.withAppendedId(uri, id.toLong())
-//                context.contentResolver.openInputStream(imgUri)?.use {
-//                    BitmapFactory.decodeStream(it).let {
-//                        layoutBinding.itemEntryPhotoImageView.setImageBitmap(it)
-//                    }
-//                }
-//            }
+    private fun getImageById(id: String, context: Context): Bitmap {
+        val filePath = context.filesDir.absolutePath + "/" + id
+        val createdBitmap: Bitmap
+//        createdBitmap.use {
 //        }
-//    }
+
+        try {
+            createdBitmap = BitmapFactory.decodeFile(filePath)
+            return createdBitmap
+        } catch (execution: FileNotFoundException) {
+            return BitmapFactory.decodeResource(
+                context.resources,
+                R.drawable.ic_launcher_foreground
+            )
+        }
+//        return BitmapFactory.decodeFile(filePath)
+    }
 }

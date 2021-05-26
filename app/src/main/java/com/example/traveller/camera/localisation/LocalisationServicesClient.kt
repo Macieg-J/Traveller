@@ -16,7 +16,8 @@ import com.google.android.gms.tasks.Task
 
 //public const val REQUEST_CHECK_SETTINGS = 69
 //
-//class LocalisationServicesClient(
+//class LocalisationServicesClient
+//    (
 ////    val context: Context,
 //    val activity: Activity
 //) {

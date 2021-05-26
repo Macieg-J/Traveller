@@ -1,33 +1,25 @@
 package com.example.traveller
 
-import android.Manifest
+import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.widget.Toast
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.findFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.room.CoroutinesRoom
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
-import androidx.room.RoomDatabase
 import com.example.traveller.adapter.EntryAdapter
 import com.example.traveller.camera.CameraActivity
 //import com.example.traveller.camera.localisation.LocalisationServicesClient
@@ -36,12 +28,9 @@ import com.example.traveller.database.Entry
 import com.example.traveller.databinding.ActivityMainBinding
 import com.example.traveller.service.BoundedService
 import com.example.traveller.service.ForegroundService
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.concurrent.Executor
 
 const val NOTIFICATION_CHANNEL_DEFAULT = "com.example.service.DEFAULT"
 
@@ -50,10 +39,18 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private val settingsFragment: SettingsFragment by lazy { SettingsFragment() }
-    private val view by lazy { ActivityMainBinding.inflate(layoutInflater) }
-    private val firstFragment: FirstFragment = FirstFragment()
 
-//        private val fragment = findViewById<View>(R.id.FirstFragment)
+    //    private val view by lazy { ActivityMainBinding.inflate(layoutInflater) }
+
+    private val startForResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val resultModel = result.data?.getParcelableExtra<Entry>("ENTRY_INFO")!!
+//                database.entryDao().insertAll(resultModel)
+                insertEntryToDb(resultModel)
+            }
+        }
+
     private lateinit var database: AppDatabase
 
     val serviceConnection = object :
@@ -75,38 +72,46 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
-        database = Room.databaseBuilder(
-            this,
-            AppDatabase::class.java,
-            "local-database"
-        ).build()
-//        firstFragment = FirstFragment()
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
+        database = Room
+            .databaseBuilder(
+                this,
+                AppDatabase::class.java,
+                "local-database"
+            )
+            .fallbackToDestructiveMigration()
+            .build()
+
+//        val navController = findNavController(R.id.nav_host_fragment_content_main)
+//        appBarConfiguration = AppBarConfiguration(navController.graph)
+//        setupActionBarWithNavController(navController, appBarConfiguration)
 
         registerChannel()
         getDataFromDb()
 
         binding.fab.setOnClickListener { view ->
-            startActivity(Intent(this, CameraActivity::class.java))
+            startForResult.launch(Intent(this, CameraActivity::class.java))
+//            startActivity(Intent(this, CameraActivity::class.java))
         }
     }
 
     private fun getDataFromDb() {
+        val entryAdapter = EntryAdapter(baseContext, this::onDisplayAction)
         lifecycleScope.launch(Dispatchers.IO) {
             val entryDao = database.entryDao()
             val listOfEntries: List<Entry> = entryDao.getAll()
+            entryAdapter.setAdapterList(listOfEntries)
             withContext(Dispatchers.Main) {
-                firstFragment.setAdapter(listOfEntries, baseContext)
-                supportFragmentManager.beginTransaction()
-                    .add(R.id.fragment_first_entry_list_recyclerView, firstFragment).commit()
+                binding.fragmentFirstEntryListRecyclerView.apply {
+                    adapter = entryAdapter
+                    layoutManager = LinearLayoutManager(this@MainActivity)
+                }
             }
         }
     }
 
     override fun onResume() {
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        getDataFromDb()
         super.onResume()
     }
 
@@ -176,6 +181,27 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
+    private fun onDisplayAction(item: Entry) { // todo finish it
+        val displayDetailsIntent = Intent(this,  CameraActivity::class.java)
+        displayDetailsIntent.putExtra("DISPLAY_ENTRY", item)
+//        setResult(Activity.RESULT_OK)
+        startActivity(displayDetailsIntent)
+    }
+
+    private fun onRemoveAction(item: Entry): Boolean {
+        lifecycleScope.launch(Dispatchers.IO){
+            database.entryDao().delete(item)
+        }
+        database.entryDao()
+        return true
+    }
+
+    private fun insertEntryToDb(entryToBeSaved: Entry) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            database.entryDao().insertAll(entryToBeSaved)
+        }
+    }
+
     fun startForegroundService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(Intent(this, ForegroundService::class.java))
@@ -196,12 +222,4 @@ class MainActivity : AppCompatActivity() {
             notificationManager.createNotificationChannel(notificationChannel)
         }
     }
-
-//    private fun onEditAction(model: Entry) {
-//
-//    }
-//
-//    private fun onRemoveAction(model: Entry) : Boolean {
-//        return false
-//    }
 }

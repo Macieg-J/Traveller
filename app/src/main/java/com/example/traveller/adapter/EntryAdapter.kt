@@ -6,13 +6,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.traveller.database.Entry
 import com.example.traveller.databinding.ItemEntryBinding
-import java.util.*
-import java.util.function.UnaryOperator
+import java.util.function.Consumer
 
 class EntryAdapter(
     private val context: Context,
-    private val editListener: (Entry) -> Unit,
-    private val deleteListener: (Entry) -> Boolean
+    private val displayDetailsListener: (Entry) -> Unit
+//    private val deleteListener: (Entry) -> Boolean
 ) : RecyclerView.Adapter<EntryViewHolder>() {
 
     private val entryList = mutableListOf<Entry>()
@@ -25,20 +24,35 @@ class EntryAdapter(
         )
         return EntryViewHolder(binding, context).also { holder ->
             binding.root.setOnClickListener {
-                editListener(entryList[holder.layoutPosition])
+                displayDetailsListener(entryList[holder.layoutPosition])
             }
+
+//            binding.root.setOnLongClickListener { _ ->
+//                deleteListener(entryList[holder.layoutPosition])
+//            }
         }
     }
 
     override fun onBindViewHolder(holder: EntryViewHolder, position: Int) {
-        holder.bind(entryList[position])
+        if (entryList.size != 0) {
+            holder.bind(entryList[position])
+        }
     }
 
     override fun getItemCount(): Int = entryList.size
 
     fun setAdapterList(listOfEntries: List<Entry>) {
         entryList.clear()
-        Collections.addAll(listOfEntries.toMutableList())
+        listOfEntries.toMutableList().forEach(Consumer { entry ->
+            if (entry.id != "Entry_ed8f6d86-03ba-45e8-80f3-6d3108a311cd")
+            entryList.add(entry)
+        })
+        notifyDataSetChanged()
+    }
+
+    fun removeItem(entry: Entry){
+        entryList.remove(entry)
+        notifyDataSetChanged()
     }
 
 }
