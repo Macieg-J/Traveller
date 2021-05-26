@@ -181,7 +181,7 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
-    private fun onDisplayAction(item: Entry) { // todo finish it
+    private fun onDisplayAction(item: Entry) {
         val displayDetailsIntent = Intent(this,  CameraActivity::class.java)
         displayDetailsIntent.putExtra("DISPLAY_ENTRY", item)
 //        setResult(Activity.RESULT_OK)

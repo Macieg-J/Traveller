@@ -30,8 +30,6 @@ class CameraActivity : AppCompatActivity() {
     private var photoStringId = UUID.randomUUID().toString()
 //    private lateinit var locationServiceClient: LocationServiceClient
 
-    // todo fetch data to be displayed (photo, note, ect)
-
     // FileProvider zapisuje w pamięci lokalnej aplikacji, MediaStore w pamięci ogólnej
 
     override fun onCreate(savedInstanceState: Bundle?) {
