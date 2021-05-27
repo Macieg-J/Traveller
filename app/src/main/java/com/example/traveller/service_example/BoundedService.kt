@@ -1,4 +1,4 @@
-package com.example.traveller.service
+package com.example.traveller.service_example
 
 
 import android.app.Service

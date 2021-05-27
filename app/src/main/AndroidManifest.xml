@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
@@ -26,9 +27,9 @@
         <!--            android:name=".service.MyService"-->
         <!--            android:enabled="true"-->
         <!--            android:exported="false"></service>-->
-        <service android:name=".service.BoundedService" />
+        <service android:name=".service_example.BoundedService" />
         <service
-            android:name="com.example.traveller.service.LocalisationService"
+            android:name="com.example.traveller.service_example.LocalisationService"
             android:enabled="true"
             android:foregroundServiceType="location" />
 

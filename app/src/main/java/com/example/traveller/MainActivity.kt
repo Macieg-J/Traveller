@@ -26,8 +26,8 @@ import com.example.traveller.camera.CameraActivity
 import com.example.traveller.database.AppDatabase
 import com.example.traveller.database.Entry
 import com.example.traveller.databinding.ActivityMainBinding
-import com.example.traveller.service.BoundedService
-import com.example.traveller.service.ForegroundService
+import com.example.traveller.service_example.BoundedService
+import com.example.traveller.service_example.ForegroundService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -39,6 +39,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private val settingsFragment: SettingsFragment by lazy { SettingsFragment() }
+
 
     //    private val view by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
