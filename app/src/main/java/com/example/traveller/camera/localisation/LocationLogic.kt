@@ -82,13 +82,13 @@ class LocationLogic
     }
 
     private val locationCallback = object : LocationCallback() {
-        override fun onLocationResult(locationResult: LocationResult) { // fixme is never called
+        override fun onLocationResult(locationResult: LocationResult) {
             if (locationResult != null) {
                 lastKnownLocation = locationResult.lastLocation
                 decodeLocation(lastKnownLocation)
                 Log.d(
                     TAG,
-                    "last known location: $lastKnownLocation, " + // fixme nie ma update
+                    "last known location: $lastKnownLocation, " +
                             "last known latitude: ${lastKnownLocation.latitude}, " +
                             "last known longitude: ${lastKnownLocation.longitude}, "
 

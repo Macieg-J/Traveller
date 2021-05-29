@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 import java.time.LocalDate
 import java.util.*
+
 @Parcelize // fixme can I do this? yes, i can
 @Entity
 data class Entry(
@@ -21,3 +22,13 @@ data class Entry(
     @ColumnInfo(name = "date") val date: String,
 
     ) : Parcelable
+
+//
+//data class EntryViewModel(
+//    val id: String,
+//    val note: String?,
+//    val placeName: String?,
+//    val countryName: String,
+//    val date: String,
+//    val bitmap: Bitmap? = null
+//)

@@ -10,11 +10,12 @@ import java.util.function.Consumer
 
 class EntryAdapter(
     private val context: Context,
-    private val displayDetailsListener: (Entry) -> Unit
+    private val displayDetailsListener: (Entry) -> Unit,
 //    private val deleteListener: (Entry) -> Boolean
 ) : RecyclerView.Adapter<EntryViewHolder>() {
 
     private val entryList = mutableListOf<Entry>()
+    lateinit var filledListOfEntries: List<Entry>
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EntryViewHolder {
         val binding = ItemEntryBinding.inflate(
@@ -48,6 +49,7 @@ class EntryAdapter(
             entryList.add(entry)
         })
         notifyDataSetChanged()
+        filledListOfEntries = ArrayList(entryList)
     }
 
     fun removeItem(entry: Entry){

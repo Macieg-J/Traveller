@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Matrix
 import android.location.Address
 import android.location.LocationManager
 import android.net.Uri
@@ -23,6 +22,7 @@ import com.example.traveller.camera.localisation.LocationLogic
 import com.example.traveller.camera.localisation.LocationModel
 import com.example.traveller.database.Entry
 import com.example.traveller.databinding.ActivityCameraBinding
+import com.example.traveller.helper.BitmapHelper
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import java.time.LocalDate
@@ -30,7 +30,8 @@ import java.util.*
 import java.util.function.Consumer
 
 
-class CameraActivity : AppCompatActivity() {
+class CameraActivity :
+    AppCompatActivity() { // fixme add text on bitmap when displaying details (like in ViewHolder, see top left corner on items in RecyclerView)
 
     private val TAG = "CameraActivity"
     private val binding by lazy { ActivityCameraBinding.inflate(layoutInflater) }
@@ -58,26 +59,17 @@ class CameraActivity : AppCompatActivity() {
             LocationServices.getFusedLocationProviderClient(this)
         locationLogic = LocationLogic(this, fusedLocationProviderClient, callback)
         val fetchedEntry = intent.getParcelableExtra<Entry>("DISPLAY_ENTRY")
+        if (binding.cameraNoteEditText.length() == 500) {
+            Toast.makeText(
+                this,
+                "Max note length is 500 characters!",
+                Toast.LENGTH_LONG
+            ).show()
+        }
         if (fetchedEntry != null) {
-            recreateAndBlock(fetchedEntry)
+            recreateAndDisable(fetchedEntry)
         }
-//        locationLogic.setUpLocalisationClient()
-//        Thread.sleep(15000)
-//        Toast.makeText(this, "Location: " + locationLogic.lastKnownLocation, Toast.LENGTH_LONG)
-//            .show()
-        if (isLocationFetched) {
-            takePhotoButton.setOnClickListener {
-                val uri = generateUri()
-                val takePhotoIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).let {
-                    it.putExtra(MediaStore.EXTRA_OUTPUT, uri)
-                }
-                startActivityForResult(takePhotoIntent, takePictureRequestCode)
-            }
-
-            binding.cameraSaveButton.setOnClickListener {
-                returnItemToBeSaved()
-            }
-        }
+        enableActions()
     }
 
     private fun enableActions() {
@@ -86,11 +78,19 @@ class CameraActivity : AppCompatActivity() {
             val takePhotoIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).let {
                 it.putExtra(MediaStore.EXTRA_OUTPUT, uri)
             }
-            startActivityForResult(takePhotoIntent, takePictureRequestCode)
+            startActivityForResult(takePhotoIntent, takePictureRequestCode) // fixme
         }
 
         binding.cameraSaveButton.setOnClickListener {
-            returnItemToBeSaved()
+            if (binding.cameraNoteEditText.length() <= 500) {
+                returnItemToBeSaved()
+            } else {
+                Toast.makeText(
+                    this,
+                    "Max note length is 500 characters!",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
     }
 
@@ -114,7 +114,7 @@ class CameraActivity : AppCompatActivity() {
 //            val options = BitmapFactory.Options().apply {
 //                inJustDecodeBounds = true
 //            }
-////            BitmapFactory.decodeResource(resources, , options)
+//            BitmapFactory.decodeResourceStream(resources, , options) // fixme
 //
 //            val scaleWidth = 450
 //            val scaleHeight = 550
@@ -145,17 +145,18 @@ class CameraActivity : AppCompatActivity() {
         Log.d(
             TAG, "createdEntry - id: \"Entry_$photoStringId\", " +
                     "photoId: $photoStringId, " +
-                    "cameraNote: $binding.cameraNoteEditText.text.toString(), " +
-                    "latitude: $lastKnownLocation.latitude, " +
-                    "longitude: $lastKnownLocation.longitude, " +
-                    "featureName: $lastKnownLocation.featureName, " +
-                    "countryName: $lastKnownLocation.countryName, " +
+                    "cameraNote: ${binding.cameraNoteEditText.text.toString()}, " +
+                    "latitude: ${lastKnownLocation.latitude}, " +
+                    "longitude: ${lastKnownLocation.longitude}, " +
+                    "featureName: ${lastKnownLocation.featureName}, " +
+                    "countryName: ${lastKnownLocation.countryName}, " +
                     "date: ${LocalDate.now().year}-${LocalDate.now().month}-${LocalDate.now().dayOfMonth}"
         )
         val createdEntry = Entry(
             "Entry_$photoStringId",
             photoStringId,
             binding.cameraNoteEditText.text.toString(),
+//            binding.cameraNoteEditTextText.text.toString(),
             lastKnownLocation.latitude,
             lastKnownLocation.longitude,
             lastKnownLocation.featureName,
@@ -173,9 +174,16 @@ class CameraActivity : AppCompatActivity() {
         finish()
     }
 
-    private fun recreateAndBlock(fetchedEntry: Entry) {
-        photoImageView.setImageBitmap(getImageById(fetchedEntry.photoId, this))
+    private fun recreateAndDisable(fetchedEntry: Entry) {
+        val fetchedBitmap = getImageById(fetchedEntry.photoId, this)
+        val bitmapToBeEdited: Bitmap =
+            fetchedBitmap.copy(android.graphics.Bitmap.Config.ARGB_8888, true)
+        val textToBeAdded =
+            "${fetchedEntry.placeName}, ${fetchedEntry.countryName}, ${fetchedEntry.date}"
+        BitmapHelper.addTextToBitmap(bitmapToBeEdited, textToBeAdded)
+        photoImageView.setImageBitmap(bitmapToBeEdited)
         binding.cameraNoteEditText.setText(fetchedEntry.note)
+//        binding.cameraNoteEditTextText.setText(fetchedEntry.note)
 
         binding.cameraTakePictureButton.visibility = View.INVISIBLE
         binding.cameraSaveButton.apply {
@@ -184,5 +192,7 @@ class CameraActivity : AppCompatActivity() {
         }
         binding.cameraNoteEditText.isClickable = false
         binding.cameraNoteEditText.isActivated = false
+//        binding.cameraNoteEditTextText.isClickable = false
+//        binding.cameraNoteEditTextText.isActivated = false
     }
 }

@@ -11,7 +11,6 @@
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <uses-feature android:name="android.hardware.location.gps" />
-
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" />
@@ -23,13 +22,20 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Traveller">
-        <!--        <service-->
-        <!--            android:name=".service.MyService"-->
-        <!--            android:enabled="true"-->
-        <!--            android:exported="false"></service>-->
+        <!-- <service -->
+        <!-- android:name=".service.MyService" -->
+        <!-- android:enabled="true" -->
+        <!-- android:exported="false"></service> -->
+        <!--        <provider fixme? https://developer.android.com/topic/libraries/architecture/workmanager/advanced/custom-configuration#remove-default-->
+        <!--            android:authorities=""-->
+        <!--            android:name=""-->
         <service android:name=".service_example.BoundedService" />
+        <provider
+            android:name="androidx.work.impl.WorkManagerInitializer"
+            android:authorities="com.example.traveller"
+            tools:node="replace"/>
         <service
-            android:name="com.example.traveller.service_example.LocalisationService"
+            android:name=".service_example.LocalisationService"
             android:enabled="true"
             android:foregroundServiceType="location" />
 
@@ -55,4 +61,5 @@
                 android:resource="@xml/file_paths" />
         </provider>
     </application>
+
 </manifest>

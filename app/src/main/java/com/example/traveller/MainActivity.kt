@@ -1,6 +1,7 @@
 package com.example.traveller
 
 import android.app.Activity
+import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.ComponentName
@@ -20,6 +21,10 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
+import androidx.work.Configuration
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.WorkerParameters
 import com.example.traveller.adapter.EntryAdapter
 import com.example.traveller.camera.CameraActivity
 //import com.example.traveller.camera.localisation.LocalisationServicesClient
@@ -28,9 +33,14 @@ import com.example.traveller.database.Entry
 import com.example.traveller.databinding.ActivityMainBinding
 import com.example.traveller.service_example.BoundedService
 import com.example.traveller.service_example.ForegroundService
+import com.example.traveller.worker.NotificationWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.Duration
+import java.time.temporal.TemporalUnit
+import java.util.concurrent.TimeUnit
+import java.util.function.Consumer
 
 const val NOTIFICATION_CHANNEL_DEFAULT = "com.example.service.DEFAULT"
 
@@ -39,7 +49,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private val settingsFragment: SettingsFragment by lazy { SettingsFragment() }
-
+// todo use WorkManager instead of Intent Service https://developer.android.com/topic/libraries/architecture/workmanager/basics https://medium.com/@ifr0z/workmanager-notification-date-and-time-pickers-aad1d938b0a3
 
     //    private val view by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
@@ -69,7 +79,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
@@ -82,16 +91,23 @@ class MainActivity : AppCompatActivity() {
             .fallbackToDestructiveMigration()
             .build()
 
-//        val navController = findNavController(R.id.nav_host_fragment_content_main)
-//        appBarConfiguration = AppBarConfiguration(navController.graph)
-//        setupActionBarWithNavController(navController, appBarConfiguration)
-
         registerChannel()
         getDataFromDb()
+//        val notificationWorker: NotificationWorker = NotificationWorker(this, WorkerParameters())
+        val checkLocationRequest =
+            PeriodicWorkRequestBuilder<NotificationWorker>(
+                1, TimeUnit.MINUTES,
+                15, TimeUnit.SECONDS
+            )
+                .addTag("Check visited locations")
+                .build()
+
+
+        val workManager: WorkManager = WorkManager.getInstance(this)
+        workManager.enqueue(checkLocationRequest)
 
         binding.fab.setOnClickListener { view ->
             startForResult.launch(Intent(this, CameraActivity::class.java))
-//            startActivity(Intent(this, CameraActivity::class.java))
         }
     }
 
@@ -183,14 +199,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onDisplayAction(item: Entry) {
-        val displayDetailsIntent = Intent(this,  CameraActivity::class.java)
+        val displayDetailsIntent = Intent(this, CameraActivity::class.java)
         displayDetailsIntent.putExtra("DISPLAY_ENTRY", item)
 //        setResult(Activity.RESULT_OK)
         startActivity(displayDetailsIntent)
     }
 
     private fun onRemoveAction(item: Entry): Boolean {
-        lifecycleScope.launch(Dispatchers.IO){
+        lifecycleScope.launch(Dispatchers.IO) {
             database.entryDao().delete(item)
         }
         database.entryDao()
@@ -223,4 +239,11 @@ class MainActivity : AppCompatActivity() {
             notificationManager.createNotificationChannel(notificationChannel)
         }
     }
+
+//    class MyApplication() : Application(), Configuration.Provider {
+//        override fun getWorkManagerConfiguration() =
+//            Configuration.Builder()
+//                .setMinimumLoggingLevel(android.util.Log.INFO)
+//                .build()
+//    }
 }
