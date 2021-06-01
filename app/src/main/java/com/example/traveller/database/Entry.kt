@@ -9,7 +9,7 @@ import kotlinx.parcelize.Parcelize
 import java.time.LocalDate
 import java.util.*
 
-@Parcelize // fixme can I do this? yes, i can
+@Parcelize
 @Entity
 data class Entry(
     @PrimaryKey val id: String,

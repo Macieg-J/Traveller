@@ -22,58 +22,58 @@
         android:id="@+id/camera_take_picture_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="40dp"
         android:text="@string/camera_take_a_picture_button_text"
-        app:layout_constraintBottom_toTopOf="@+id/camera_note_editText"
+        app:layout_constraintBottom_toTopOf="@+id/textInputLayout2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent" />
 
-<!--    <com.google.android.material.textfield.TextInputLayout-->
-<!--        android:id="@+id/textInputLayout2"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:textAlignment="center"-->
-<!--        app:counterEnabled="true"-->
-<!--        app:counterMaxLength="500"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        tools:layout_editor_absoluteY="567dp">-->
-
-<!--        <com.google.android.material.textfield.TextInputEditText-->
-<!--            android:id="@+id/camera_note_editTextText"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginStart="8dp"-->
-<!--            android:layout_marginEnd="8dp"-->
-<!--            android:clickable="true"-->
-<!--            android:ems="10"-->
-<!--            android:gravity="top|left"-->
-<!--            android:hint="Enter your note here"-->
-<!--            android:inputType="textMultiLine"-->
-<!--            android:textEditPasteWindowLayout="@style/TextAppearance.AppCompat.SearchResult.Subtitle"-->
-<!--            android:visibility="visible"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            tools:layout_editor_absoluteY="606dp" />-->
-
-<!--    </com.google.android.material.textfield.TextInputLayout>-->
-
-    <EditText
-        android:id="@+id/camera_note_editText"
-        android:layout_width="0dp"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout2"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="24dp"
-        android:ems="10"
-        android:hint="@string/camera_note_editText_hint"
-        android:inputType="textMultiLine"
-        android:maxLength="500"
-        android:textEditPasteWindowLayout="@style/TextAppearance.AppCompat.SearchResult.Subtitle"
+        android:textAlignment="center"
+        app:counterEnabled="true"
+        app:counterMaxLength="500"
         app:layout_constraintBottom_toTopOf="@+id/camera_save_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/camera_note_editTextText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:clickable="true"
+            android:ems="10"
+            android:gravity="top|left"
+            android:hint="Enter your note here"
+            android:inputType="textMultiLine"
+            android:textEditPasteWindowLayout="@style/TextAppearance.AppCompat.SearchResult.Subtitle"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:layout_editor_absoluteY="606dp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+<!--    <EditText-->
+<!--        android:id="@+id/camera_note_editText"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="8dp"-->
+<!--        android:layout_marginEnd="8dp"-->
+<!--        android:ems="10"-->
+<!--        android:hint="@string/camera_note_editText_hint"-->
+<!--        android:inputType="textMultiLine"-->
+<!--        android:maxLength="500"-->
+<!--        android:textEditPasteWindowLayout="@style/TextAppearance.AppCompat.SearchResult.Subtitle"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        tools:layout_editor_absoluteY="598dp" />-->
 
     <Button
         android:id="@+id/camera_save_button"

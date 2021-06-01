@@ -17,14 +17,14 @@
             android:defaultValue="0"
             android:entries="@array/item_font_colors"
             android:entryValues="@array/item_font_colors"
-            android:key="list_preference_1"
+            android:key="font_colour"
             android:title="Chose font colour" />
         <SeekBarPreference
-            android:defaultValue="11"
+            android:defaultValue="30"
             android:key="font_size"
-            android:max="20"
+            android:max="40"
             android:title="Font size"
-            app:min="5"
+            app:min="12"
             app:showSeekBarValue="true" />
     </PreferenceCategory>
 

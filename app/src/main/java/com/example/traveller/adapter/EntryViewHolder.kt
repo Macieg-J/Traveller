@@ -3,6 +3,7 @@ package com.example.traveller.adapter
 import android.content.Context
 import android.graphics.*
 import androidx.recyclerview.widget.RecyclerView
+import com.example.traveller.settings.PreferencesModel
 import com.example.traveller.R
 import com.example.traveller.database.Entry
 //import com.example.traveller.database.EntryViewModel
@@ -30,7 +31,8 @@ fun getImageById(id: String, context: Context): Bitmap {
 
 class EntryViewHolder(
     private val layoutBinding: ItemEntryBinding,
-    private val context: Context
+    private val context: Context,
+    private val preferencesModel: PreferencesModel
 ) : RecyclerView.ViewHolder(layoutBinding.root) {
 
     private val uriBeginning = ""
@@ -51,7 +53,7 @@ class EntryViewHolder(
         try {
             createdBitmap = BitmapFactory.decodeFile(filePath)
             val bitmapToBeEdited: Bitmap = createdBitmap.copy(android.graphics.Bitmap.Config.ARGB_8888, true)
-            BitmapHelper.addTextToBitmap(bitmapToBeEdited, textToBeDrawn)
+            BitmapHelper.addTextToBitmap(bitmapToBeEdited, textToBeDrawn, preferencesModel)
             return bitmapToBeEdited
         } catch (execution: FileNotFoundException) {
             return BitmapFactory.decodeResource(

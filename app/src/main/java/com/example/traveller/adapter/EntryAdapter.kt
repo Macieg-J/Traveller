@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.traveller.settings.PreferencesModel
 import com.example.traveller.database.Entry
 import com.example.traveller.databinding.ItemEntryBinding
 import java.util.function.Consumer
@@ -11,6 +12,7 @@ import java.util.function.Consumer
 class EntryAdapter(
     private val context: Context,
     private val displayDetailsListener: (Entry) -> Unit,
+    private val preferencesModel: PreferencesModel
 //    private val deleteListener: (Entry) -> Boolean
 ) : RecyclerView.Adapter<EntryViewHolder>() {
 
@@ -23,7 +25,7 @@ class EntryAdapter(
             parent,
             false
         )
-        return EntryViewHolder(binding, context).also { holder ->
+        return EntryViewHolder(binding, context, preferencesModel).also { holder ->
             binding.root.setOnClickListener {
                 displayDetailsListener(entryList[holder.layoutPosition])
             }

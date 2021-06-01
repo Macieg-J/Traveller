@@ -1,7 +1,6 @@
 package com.example.traveller
 
 import android.app.Activity
-import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.ComponentName
@@ -15,13 +14,13 @@ import android.view.MenuItem
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
-import androidx.work.Configuration
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
@@ -33,24 +32,35 @@ import com.example.traveller.database.Entry
 import com.example.traveller.databinding.ActivityMainBinding
 import com.example.traveller.service_example.BoundedService
 import com.example.traveller.service_example.ForegroundService
+import com.example.traveller.settings.PreferencesModel
+import com.example.traveller.settings.SettingsFragment
 import com.example.traveller.worker.NotificationWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.Duration
-import java.time.temporal.TemporalUnit
 import java.util.concurrent.TimeUnit
 import java.util.function.Consumer
 
 const val NOTIFICATION_CHANNEL_DEFAULT = "com.example.service.DEFAULT"
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), Navigable {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-    private val settingsFragment: SettingsFragment by lazy { SettingsFragment() }
-// todo use WorkManager instead of Intent Service https://developer.android.com/topic/libraries/architecture/workmanager/basics https://medium.com/@ifr0z/workmanager-notification-date-and-time-pickers-aad1d938b0a3
+    private var preferencesModel: PreferencesModel = PreferencesModel(30f, "Black")
+    val callback: Consumer<List<Any>> = Consumer { data ->
+        if (data.isNotEmpty()) preferencesModel =
+            PreferencesModel(data[0].toString().toFloat(), data[1].toString())
+        supportFragmentManager
+            .beginTransaction()
+            .detach(secondFragment)
+            .commit()
+//         supportFragmentManager.popBackStack()
+    }
 
+    //    private val settingsFragment: SettingsFragment by lazy { SettingsFragment() }
+// todo use WorkManager instead of Intent Service https://developer.android.com/topic/libraries/architecture/workmanager/basics https://medium.com/@ifr0z/workmanager-notification-date-and-time-pickers-aad1d938b0a3
+    private val secondFragment = SecondFragment()
     //    private val view by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
     private val startForResult =
@@ -107,20 +117,39 @@ class MainActivity : AppCompatActivity() {
         workManager.enqueue(checkLocationRequest)
 
         binding.fab.setOnClickListener { view ->
+            val displayIntent = Intent(this, CameraActivity::class.java)
+            displayIntent.putExtra("PreferencesModel", preferencesModel)
+
             startForResult.launch(Intent(this, CameraActivity::class.java))
         }
     }
 
     private fun getDataFromDb() {
-        val entryAdapter = EntryAdapter(baseContext, this::onDisplayAction)
-        lifecycleScope.launch(Dispatchers.IO) {
-            val entryDao = database.entryDao()
-            val listOfEntries: List<Entry> = entryDao.getAll()
-            entryAdapter.setAdapterList(listOfEntries)
-            withContext(Dispatchers.Main) {
-                binding.fragmentFirstEntryListRecyclerView.apply {
-                    adapter = entryAdapter
-                    layoutManager = LinearLayoutManager(this@MainActivity)
+        if (preferencesModel != null) {
+            val entryAdapter = EntryAdapter(baseContext, this::onDisplayAction, preferencesModel)
+            lifecycleScope.launch(Dispatchers.IO) {
+                val entryDao = database.entryDao()
+                val listOfEntries: List<Entry> = entryDao.getAll()
+                entryAdapter.setAdapterList(listOfEntries)
+                withContext(Dispatchers.Main) {
+                    binding.fragmentFirstEntryListRecyclerView.apply {
+                        adapter = entryAdapter
+                        layoutManager = LinearLayoutManager(this@MainActivity)
+                    }
+                }
+            }
+        } else {
+            val entryAdapter =
+                EntryAdapter(baseContext, this::onDisplayAction, PreferencesModel(30f, "Black"))
+            lifecycleScope.launch(Dispatchers.IO) {
+                val entryDao = database.entryDao()
+                val listOfEntries: List<Entry> = entryDao.getAll()
+                entryAdapter.setAdapterList(listOfEntries)
+                withContext(Dispatchers.Main) {
+                    binding.fragmentFirstEntryListRecyclerView.apply {
+                        adapter = entryAdapter
+                        layoutManager = LinearLayoutManager(this@MainActivity)
+                    }
                 }
             }
         }
@@ -145,11 +174,11 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.action_settings -> startSettingsTransaction()
             android.R.id.home -> {
-                supportFragmentManager
-                    .beginTransaction()
-                    .detach(settingsFragment)
-                    .commit()
-//                supportFragmentManager.popBackStack()
+//                supportFragmentManager
+//                    .beginTransaction()
+//                    .detach(secondFragment)
+//                    .commit()
+                supportFragmentManager.popBackStack()
                 return true
             }
             else -> super.onOptionsItemSelected(item)
@@ -161,8 +190,8 @@ class MainActivity : AppCompatActivity() {
 
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.root_container, settingsFragment)
-            .addToBackStack(null)
+            .replace(R.id.root_container, secondFragment)
+            .addToBackStack("secondFragment")
             .commit()
         return true
     }
@@ -240,10 +269,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-//    class MyApplication() : Application(), Configuration.Provider {
-//        override fun getWorkManagerConfiguration() =
-//            Configuration.Builder()
-//                .setMinimumLoggingLevel(android.util.Log.INFO)
-//                .build()
-//    }
+    override fun navigateTo(fragment: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.root_container, fragment)
+            .addToBackStack(fragment.javaClass.name)
+            .commit()
+    }
 }

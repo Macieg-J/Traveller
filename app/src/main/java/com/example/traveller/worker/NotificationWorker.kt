@@ -25,7 +25,7 @@ private const val TAG = "NotificationWorker"
 class NotificationWorker(
     val context: Context,
     workerParameters: WorkerParameters,
-    private val listOfEntries: List<Entry>
+    private val listOfEntries: List<Entry> // fixme wyciagac liste z bazy
 ) :
     CoroutineWorker(context, workerParameters) {
     private val notificationId = 1
@@ -74,6 +74,7 @@ class NotificationWorker(
             .addAction(android.R.drawable.ic_delete, cancel, intent)
             .build()
 
+        context.getSystemService(NotificationManager::class.java).notify(1, notification) // to i createChannel do stworzonej klasy broadcast
         return ForegroundInfo(notificationId, notification)
     }
 
@@ -100,6 +101,7 @@ class NotificationWorker(
             Intent(context, BroadcastReceiver::class.java),
             PendingIntent.FLAG_UPDATE_CURRENT
         )
+        // todo create class that extends BroadcastReciver, add to manifest and implement onReceive method - next step is adding notification (notification
         listOfEntries.forEach { entry ->
             locationManager?.addProximityAlert(
                 entry.latitude,

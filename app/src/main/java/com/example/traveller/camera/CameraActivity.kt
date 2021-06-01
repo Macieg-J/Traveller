@@ -16,6 +16,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import com.example.traveller.settings.PreferencesModel
 import com.example.traveller.R
 import com.example.traveller.adapter.getImageById
 import com.example.traveller.camera.localisation.LocationLogic
@@ -43,6 +44,7 @@ class CameraActivity :
     private lateinit var locationLogic: LocationLogic
     private lateinit var lastKnownLocation: Address
     private var isLocationFetched = false
+    private var preferencesModel: PreferencesModel? = PreferencesModel(30f, "Black")
     private val locationManager by lazy { getSystemService(LocationManager::class.java) } // todo addProximityAlert
     private val callback: Consumer<LocationModel> = Consumer { locationModel ->
         lastKnownLocation = locationModel.lastKnownLocation
@@ -59,7 +61,8 @@ class CameraActivity :
             LocationServices.getFusedLocationProviderClient(this)
         locationLogic = LocationLogic(this, fusedLocationProviderClient, callback)
         val fetchedEntry = intent.getParcelableExtra<Entry>("DISPLAY_ENTRY")
-        if (binding.cameraNoteEditText.length() == 500) {
+        preferencesModel = intent.getParcelableExtra("PreferencesModel")
+        if (binding.cameraNoteEditTextText.length() == 500) {
             Toast.makeText(
                 this,
                 "Max note length is 500 characters!",
@@ -82,7 +85,7 @@ class CameraActivity :
         }
 
         binding.cameraSaveButton.setOnClickListener {
-            if (binding.cameraNoteEditText.length() <= 500) {
+            if (binding.cameraNoteEditTextText.length() <= 500) {
                 returnItemToBeSaved()
             } else {
                 Toast.makeText(
@@ -145,7 +148,7 @@ class CameraActivity :
         Log.d(
             TAG, "createdEntry - id: \"Entry_$photoStringId\", " +
                     "photoId: $photoStringId, " +
-                    "cameraNote: ${binding.cameraNoteEditText.text.toString()}, " +
+                    "cameraNote: ${binding.cameraNoteEditTextText.text.toString()}, " +
                     "latitude: ${lastKnownLocation.latitude}, " +
                     "longitude: ${lastKnownLocation.longitude}, " +
                     "featureName: ${lastKnownLocation.featureName}, " +
@@ -155,11 +158,11 @@ class CameraActivity :
         val createdEntry = Entry(
             "Entry_$photoStringId",
             photoStringId,
-            binding.cameraNoteEditText.text.toString(),
+            binding.cameraNoteEditTextText.text.toString(),
 //            binding.cameraNoteEditTextText.text.toString(),
             lastKnownLocation.latitude,
             lastKnownLocation.longitude,
-            lastKnownLocation.featureName,
+            lastKnownLocation.locality,
             lastKnownLocation.countryName,
             "" + LocalDate.now().year + LocalDate.now().month + LocalDate.now().dayOfMonth
         )
@@ -180,9 +183,9 @@ class CameraActivity :
             fetchedBitmap.copy(android.graphics.Bitmap.Config.ARGB_8888, true)
         val textToBeAdded =
             "${fetchedEntry.placeName}, ${fetchedEntry.countryName}, ${fetchedEntry.date}"
-        BitmapHelper.addTextToBitmap(bitmapToBeEdited, textToBeAdded)
+        BitmapHelper.addTextToBitmap(bitmapToBeEdited, textToBeAdded, preferencesModel)
         photoImageView.setImageBitmap(bitmapToBeEdited)
-        binding.cameraNoteEditText.setText(fetchedEntry.note)
+        binding.cameraNoteEditTextText.setText(fetchedEntry.note)
 //        binding.cameraNoteEditTextText.setText(fetchedEntry.note)
 
         binding.cameraTakePictureButton.visibility = View.INVISIBLE
@@ -190,8 +193,8 @@ class CameraActivity :
             text = "Back"
             setOnClickListener { finish() }
         }
-        binding.cameraNoteEditText.isClickable = false
-        binding.cameraNoteEditText.isActivated = false
+        binding.cameraNoteEditTextText.isClickable = false
+        binding.cameraNoteEditTextText.isActivated = false
 //        binding.cameraNoteEditTextText.isClickable = false
 //        binding.cameraNoteEditTextText.isActivated = false
     }

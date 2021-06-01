@@ -5,40 +5,50 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import com.example.traveller.databinding.FragmentSecondBinding
+import com.example.traveller.settings.SettingsFragment
+import java.util.function.Consumer
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
  */
 class SecondFragment : Fragment() {
 
-    private var _binding: FragmentSecondBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private val binding get() = _binding!!
-
+    private lateinit var binding: FragmentSecondBinding
+    lateinit var navigable: Navigable
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-
-        _binding = FragmentSecondBinding.inflate(inflater, container, false)
-        return binding.root
-
+    ): View {
+        return FragmentSecondBinding.inflate(
+            inflater,
+            container,
+            false
+        ).also {
+            binding = it
+        }.root
     }
 
-//    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        super.onViewCreated(view, savedInstanceState)
-//
-//        binding.buttonSecond.setOnClickListener {
-//            findNavController().navigate(R.id.action_SecondFragment_to_FirstFragment)
-//        }
-//    }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        (requireActivity() as Navigable).let {
+            it.navigateTo(SettingsFragment())
+        }
+    }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    override fun onPause() {
+        super.onPause()
+        val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val allSettings = preferences.all
+        val fontSize = allSettings["font_size"]
+        val fontColor = allSettings["font_colour"]
+
+        (requireActivity() as? MainActivity)!!.callback.accept(
+            listOf(
+                fontSize.toString(),
+                fontColor.toString()
+            )
+        )
     }
 }
