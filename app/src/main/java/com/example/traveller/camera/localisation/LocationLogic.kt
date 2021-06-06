@@ -103,7 +103,7 @@ class LocationLogic
             geocoder.getFromLocation(
                 lastKnownLocation.latitude,
                 lastKnownLocation.longitude,
-                1
+                3
             )
         callback.accept(
             LocationModel(

@@ -18,7 +18,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import com.example.traveller.settings.PreferencesModel
 import com.example.traveller.R
-import com.example.traveller.adapter.getImageById
 import com.example.traveller.camera.localisation.LocationLogic
 import com.example.traveller.camera.localisation.LocationModel
 import com.example.traveller.database.Entry
@@ -29,7 +28,6 @@ import com.google.android.gms.location.LocationServices
 import java.time.LocalDate
 import java.util.*
 import java.util.function.Consumer
-
 
 class CameraActivity :
     AppCompatActivity() { // fixme add text on bitmap when displaying details (like in ViewHolder, see top left corner on items in RecyclerView)
@@ -57,26 +55,34 @@ class CameraActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        val fusedLocationProviderClient: FusedLocationProviderClient =
-            LocationServices.getFusedLocationProviderClient(this)
-        locationLogic = LocationLogic(this, fusedLocationProviderClient, callback)
         val fetchedEntry = intent.getParcelableExtra<Entry>("DISPLAY_ENTRY")
-        preferencesModel = intent.getParcelableExtra("PreferencesModel")
-        if (binding.cameraNoteEditTextText.length() == 500) {
-            Toast.makeText(
-                this,
-                "Max note length is 500 characters!",
-                Toast.LENGTH_LONG
-            ).show()
-        }
+        preferencesModel = intent.getParcelableExtra("PreferencesModel") // fixme IS NULL 01.06.2021
         if (fetchedEntry != null) {
             recreateAndDisable(fetchedEntry)
+        } else {
+//            val fusedLocationProviderClient: FusedLocationProviderClient =
+//                LocationServices.getFusedLocationProviderClient(this)
+//            locationLogic = LocationLogic(this, fusedLocationProviderClient, callback)
+
+            if (binding.cameraNoteEditTextText.length() == 500) {
+                Toast.makeText(
+                    this,
+                    "Max note length is 500 characters!",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+//        if (fetchedEntry != null) {
+//            recreateAndDisable(fetchedEntry)
+//        }
+            enableActions()
         }
-        enableActions()
     }
 
     private fun enableActions() {
         takePhotoButton.setOnClickListener {
+            val fusedLocationProviderClient: FusedLocationProviderClient =
+                LocationServices.getFusedLocationProviderClient(this)
+            locationLogic = LocationLogic(this, fusedLocationProviderClient, callback)
             val uri = generateUri()
             val takePhotoIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).let {
                 it.putExtra(MediaStore.EXTRA_OUTPUT, uri)
@@ -110,33 +116,9 @@ class CameraActivity :
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
         if (requestCode == takePictureRequestCode && resultCode == RESULT_OK) {
-            val fullBitmap = BitmapFactory.decodeFile(  // pelne zdjecie
-//                    filesDir.resolve("images/image.jpg").absolutePath
+            val fullBitmap = BitmapFactory.decodeFile(
                 filesDir.resolve(photoStringId).absolutePath
             )
-//            val options = BitmapFactory.Options().apply {
-//                inJustDecodeBounds = true
-//            }
-//            BitmapFactory.decodeResourceStream(resources, , options) // fixme
-//
-//            val scaleWidth = 450
-//            val scaleHeight = 550
-//            val width = fullBitmap.width
-//            val height = fullBitmap.height
-//            val scaledWidth = (width / scaleWidth).toFloat()
-//            val scaledHeight = (height / scaleHeight).toFloat()
-//            val matrix = Matrix()
-//            matrix.postScale(scaledWidth, scaledHeight)
-//            val scaledBitmap = Bitmap.createBitmap(fullBitmap, 0, 0, width, height, matrix, false)
-
-//            photoImageView.setImageBitmap(data?.getParcelableExtra("photo") as? Bitmap) // miniaturka zdjecia
-//            photoImageView.setImageBitmap( // zapis zdjecia
-//                BitmapFactory.decodeFile(  // pelne zdjecie
-////                    filesDir.resolve("images/image.jpg").absolutePath
-//                    filesDir.resolve(photoStringId).absolutePath
-////                ).compress(Bitmap.CompressFormat.JPEG, 50, openFileOutput("x", MODE_APPEND))
-//                )
-//            )
             photoImageView.setImageBitmap(fullBitmap)
 
         }
@@ -178,15 +160,20 @@ class CameraActivity :
     }
 
     private fun recreateAndDisable(fetchedEntry: Entry) {
-        val fetchedBitmap = getImageById(fetchedEntry.photoId, this)
-        val bitmapToBeEdited: Bitmap =
-            fetchedBitmap.copy(android.graphics.Bitmap.Config.ARGB_8888, true)
         val textToBeAdded =
             "${fetchedEntry.placeName}, ${fetchedEntry.countryName}, ${fetchedEntry.date}"
-        BitmapHelper.addTextToBitmap(bitmapToBeEdited, textToBeAdded, preferencesModel)
-        photoImageView.setImageBitmap(bitmapToBeEdited)
+//        val fetchedBitmap = BitmapHelper.getImageById(fetchedEntry.photoId, this)
+        val fetchedBitmap = BitmapHelper.getImageByIdAndAddText(
+            fetchedEntry.photoId,
+            this,
+            textToBeAdded,
+            preferencesModel
+        )
+//        val bitmapToBeEdited: Bitmap =
+//            fetchedBitmap.copy(android.graphics.Bitmap.Config.ARGB_8888, true)
+//        BitmapHelper.addTextToBitmap(bitmapToBeEdited, textToBeAdded, preferencesModel)
+        photoImageView.setImageBitmap(fetchedBitmap)
         binding.cameraNoteEditTextText.setText(fetchedEntry.note)
-//        binding.cameraNoteEditTextText.setText(fetchedEntry.note)
 
         binding.cameraTakePictureButton.visibility = View.INVISIBLE
         binding.cameraSaveButton.apply {
@@ -195,7 +182,5 @@ class CameraActivity :
         }
         binding.cameraNoteEditTextText.isClickable = false
         binding.cameraNoteEditTextText.isActivated = false
-//        binding.cameraNoteEditTextText.isClickable = false
-//        binding.cameraNoteEditTextText.isActivated = false
     }
 }

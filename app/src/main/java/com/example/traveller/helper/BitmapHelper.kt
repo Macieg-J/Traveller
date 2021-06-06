@@ -1,10 +1,51 @@
 package com.example.traveller.helper
 
+import android.content.Context
 import android.graphics.*
+import com.example.traveller.R
 import com.example.traveller.settings.PreferencesModel
+import java.io.FileNotFoundException
 
 class BitmapHelper {
     companion object {
+
+        fun getImageById(id: String, context: Context): Bitmap {
+            val filePath = context.filesDir.absolutePath + "/" + id
+            val createdBitmap: Bitmap
+
+            try {
+                createdBitmap = BitmapFactory.decodeFile(filePath)
+                return createdBitmap
+            } catch (execution: FileNotFoundException) {
+                return BitmapFactory.decodeResource(
+                    context.resources,
+                    R.drawable.ic_launcher_foreground
+                )
+            }
+        }
+
+        fun getImageByIdAndAddText(
+            id: String,
+            context: Context,
+            textToBeDrawn: String,
+            preferencesModel: PreferencesModel?
+        ): Bitmap {
+            val filePath = context.filesDir.absolutePath + "/" + id
+            val createdBitmap: Bitmap
+            try {
+                createdBitmap = BitmapFactory.decodeFile(filePath)
+                val bitmapToBeEdited: Bitmap =
+                    createdBitmap.copy(android.graphics.Bitmap.Config.ARGB_8888, true)
+                BitmapHelper.addTextToBitmap(bitmapToBeEdited, textToBeDrawn, preferencesModel)
+                return bitmapToBeEdited
+            } catch (execution: FileNotFoundException) {
+                return BitmapFactory.decodeResource(
+                    context.resources,
+                    R.drawable.ic_launcher_foreground
+                )
+            }
+        }
+
         private var chosenColor: Int = Color.BLACK
         fun addTextToBitmap(
             bitmap: Bitmap,
@@ -12,7 +53,7 @@ class BitmapHelper {
             preferencesModel: PreferencesModel?
         ) {
             if (preferencesModel != null) {
-                when(preferencesModel.fontColor){
+                when (preferencesModel.fontColor) {
                     "Black" -> chosenColor = Color.BLACK
                     "Red" -> chosenColor = Color.RED
                     "Green" -> chosenColor = Color.GREEN

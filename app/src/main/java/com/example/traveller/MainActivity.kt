@@ -230,8 +230,10 @@ class MainActivity : AppCompatActivity(), Navigable {
     private fun onDisplayAction(item: Entry) {
         val displayDetailsIntent = Intent(this, CameraActivity::class.java)
         displayDetailsIntent.putExtra("DISPLAY_ENTRY", item)
+        displayDetailsIntent.putExtra("PreferencesModel", preferencesModel)
 //        setResult(Activity.RESULT_OK)
-        startActivity(displayDetailsIntent)
+//        startActivity(displayDetailsIntent)
+        startForResult.launch(displayDetailsIntent)
     }
 
     private fun onRemoveAction(item: Entry): Boolean {

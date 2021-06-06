@@ -51,4 +51,19 @@ class SecondFragment : Fragment() {
             )
         )
     }
+
+    override fun onStop() {
+        super.onStop()
+        val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val allSettings = preferences.all
+        val fontSize = allSettings["font_size"]
+        val fontColor = allSettings["font_colour"]
+
+        (requireActivity() as? MainActivity)!!.callback.accept(
+            listOf(
+                fontSize.toString(),
+                fontColor.toString()
+            )
+        )
+    }
 }
