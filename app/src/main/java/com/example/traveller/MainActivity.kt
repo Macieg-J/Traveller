@@ -5,12 +5,14 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -23,7 +25,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import androidx.work.WorkerParameters
 import com.example.traveller.adapter.EntryAdapter
 import com.example.traveller.camera.CameraActivity
 //import com.example.traveller.camera.localisation.LocalisationServicesClient
@@ -34,6 +35,7 @@ import com.example.traveller.service_example.BoundedService
 import com.example.traveller.service_example.ForegroundService
 import com.example.traveller.settings.PreferencesModel
 import com.example.traveller.settings.SettingsFragment
+import com.example.traveller.worker.MyBroadcastReceiver
 import com.example.traveller.worker.NotificationWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -47,10 +49,41 @@ class MainActivity : AppCompatActivity(), Navigable {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-    private var preferencesModel: PreferencesModel = PreferencesModel(30f, "Black")
+    private var preferencesModel: PreferencesModel = PreferencesModel(1, 30f, "Black")
     val callback: Consumer<List<Any>> = Consumer { data ->
-        if (data.isNotEmpty()) preferencesModel =
-            PreferencesModel(data[0].toString().toFloat(), data[1].toString())
+        if (data.isNotEmpty()) {
+            if (data[0] == "null") {
+                preferencesModel =
+                    PreferencesModel(
+                        1,
+                        data[1].toString().toFloat(),
+                        data[2].toString()
+                    )
+            } else {
+                data[0]?.let {
+                    preferencesModel =
+                        PreferencesModel(
+                            data[0].toString().toInt(),
+                            data[1].toString().toFloat(),
+                            data[2].toString()
+                        )
+                } ?: run {
+                    preferencesModel =
+                        PreferencesModel(
+                            1,
+                            data[1].toString().toFloat(),
+                            data[2].toString()
+                        )
+                }
+            }
+
+//            preferencesModel =
+//                PreferencesModel(
+//                    data[0]?.toString().toInt(),
+//                    data[1].toString().toFloat(),
+//                    data[2].toString()
+//                )
+        }
         supportFragmentManager
             .beginTransaction()
             .detach(secondFragment)
@@ -59,7 +92,6 @@ class MainActivity : AppCompatActivity(), Navigable {
     }
 
     //    private val settingsFragment: SettingsFragment by lazy { SettingsFragment() }
-// todo use WorkManager instead of Intent Service https://developer.android.com/topic/libraries/architecture/workmanager/basics https://medium.com/@ifr0z/workmanager-notification-date-and-time-pickers-aad1d938b0a3
     private val secondFragment = SecondFragment()
     //    private val view by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
@@ -86,6 +118,7 @@ class MainActivity : AppCompatActivity(), Navigable {
     }
 
     var service: BoundedService? = null
+    lateinit var broadcastReceiver: MyBroadcastReceiver
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -116,6 +149,10 @@ class MainActivity : AppCompatActivity(), Navigable {
         val workManager: WorkManager = WorkManager.getInstance(this)
         workManager.enqueue(checkLocationRequest)
 
+        broadcastReceiver = MyBroadcastReceiver(this)
+        val intentFilter = IntentFilter("locationCheck")
+        registerReceiver(broadcastReceiver, intentFilter)
+
         binding.fab.setOnClickListener { view ->
             val displayIntent = Intent(this, CameraActivity::class.java)
             displayIntent.putExtra("PreferencesModel", preferencesModel)
@@ -140,7 +177,7 @@ class MainActivity : AppCompatActivity(), Navigable {
             }
         } else {
             val entryAdapter =
-                EntryAdapter(baseContext, this::onDisplayAction, PreferencesModel(30f, "Black"))
+                EntryAdapter(baseContext, this::onDisplayAction, PreferencesModel(1, 30f, "Black"))
             lifecycleScope.launch(Dispatchers.IO) {
                 val entryDao = database.entryDao()
                 val listOfEntries: List<Entry> = entryDao.getAll()
@@ -277,4 +314,19 @@ class MainActivity : AppCompatActivity(), Navigable {
             .addToBackStack(fragment.javaClass.name)
             .commit()
     }
+
+    private fun checkOnLocations(){
+
+    }
+
+//    private fun sendBroadcast(view: View) {
+//        val intent = Intent(this, MyBroadcastReceiver(this))
+//
+//        sendBroadcast(intent)
+//    }
+
+//    override fun onDestroy() {
+//        super.onDestroy()
+//        unregisterReceiver(broadcastReceiver)
+//    }
 }

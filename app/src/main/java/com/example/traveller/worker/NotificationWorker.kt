@@ -55,7 +55,7 @@ class NotificationWorker(
     private fun createForegroundInfo(progress: String): ForegroundInfo {
         Log.d(TAG, "createForegroundInfo() lunched!")
         val id =
-            applicationContext.getString(R.string.notification_channel_id) // fixme application context or just context?
+            applicationContext.getString(R.string.notification_channel_id) // wrong context?
         val title = applicationContext.getString(R.string.notification_title)
         val cancel = applicationContext.getString(R.string.notification_cancel)
 
@@ -101,7 +101,7 @@ class NotificationWorker(
             Intent(context, BroadcastReceiver::class.java),
             PendingIntent.FLAG_UPDATE_CURRENT
         )
-        // todo create class that extends BroadcastReciver, add to manifest and implement onReceive method - next step is adding notification (notification
+        // todo create class that extends BroadcastReciver, add to manifest and implement onReceive method - next step is adding notification (like val notification?
         listOfEntries.forEach { entry ->
             locationManager?.addProximityAlert(
                 entry.latitude,

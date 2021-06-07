@@ -41,11 +41,13 @@ class SecondFragment : Fragment() {
         super.onPause()
         val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val allSettings = preferences.all
+        val notificationDistance = allSettings["notification_distance"]
         val fontSize = allSettings["font_size"]
         val fontColor = allSettings["font_colour"]
 
         (requireActivity() as? MainActivity)!!.callback.accept(
             listOf(
+                notificationDistance.toString(),
                 fontSize.toString(),
                 fontColor.toString()
             )
@@ -56,11 +58,13 @@ class SecondFragment : Fragment() {
         super.onStop()
         val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val allSettings = preferences.all
+        val notificationDistance = allSettings["notification_distance"]
         val fontSize = allSettings["font_size"]
         val fontColor = allSettings["font_colour"]
 
         (requireActivity() as? MainActivity)!!.callback.accept(
             listOf(
+                notificationDistance.toString(),
                 fontSize.toString(),
                 fontColor.toString()
             )

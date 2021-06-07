@@ -30,7 +30,7 @@ import java.util.*
 import java.util.function.Consumer
 
 class CameraActivity :
-    AppCompatActivity() { // fixme add text on bitmap when displaying details (like in ViewHolder, see top left corner on items in RecyclerView)
+    AppCompatActivity() {
 
     private val TAG = "CameraActivity"
     private val binding by lazy { ActivityCameraBinding.inflate(layoutInflater) }
@@ -42,7 +42,7 @@ class CameraActivity :
     private lateinit var locationLogic: LocationLogic
     private lateinit var lastKnownLocation: Address
     private var isLocationFetched = false
-    private var preferencesModel: PreferencesModel? = PreferencesModel(30f, "Black")
+    private var preferencesModel: PreferencesModel? = PreferencesModel(1, 30f, "Black")
     private val locationManager by lazy { getSystemService(LocationManager::class.java) } // todo addProximityAlert
     private val callback: Consumer<LocationModel> = Consumer { locationModel ->
         lastKnownLocation = locationModel.lastKnownLocation
@@ -87,7 +87,7 @@ class CameraActivity :
             val takePhotoIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).let {
                 it.putExtra(MediaStore.EXTRA_OUTPUT, uri)
             }
-            startActivityForResult(takePhotoIntent, takePictureRequestCode) // fixme
+            startActivityForResult(takePhotoIntent, takePictureRequestCode)
         }
 
         binding.cameraSaveButton.setOnClickListener {

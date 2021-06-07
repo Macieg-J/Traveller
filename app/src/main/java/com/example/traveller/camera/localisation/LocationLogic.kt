@@ -60,7 +60,7 @@ class LocationLogic
         }
         fusedLocationProviderClient.lastLocation
             .addOnCompleteListener { task ->
-                val location: Location = task.result // fixme
+                val location: Location = task.result
                 requestNewLocationData()
                 Log.d(TAG, "Location: $location, latitude: ${location.latitude}")
                 decodeLocation(task.result)
@@ -112,6 +112,6 @@ class LocationLogic
                 lastKnownLocation.longitude
             )
         )
-        Log.d(TAG, "Last known country: ${listOfAddresses[0].countryName}, Last known city: ${listOfAddresses[0].featureName}, ")
+        Log.d(TAG, "Last known country: ${listOfAddresses[0].countryName}, Last known city: ${listOfAddresses[0].locality}")
     }
 }

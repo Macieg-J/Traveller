@@ -50,8 +50,8 @@ class EntryAdapter(
             if (entry.id != "Entry_ed8f6d86-03ba-45e8-80f3-6d3108a311cd")
             entryList.add(entry)
         })
-        notifyDataSetChanged()
         filledListOfEntries = ArrayList(entryList)
+        notifyDataSetChanged()
     }
 
     fun removeItem(entry: Entry){
